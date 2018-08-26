@@ -1,0 +1,1406 @@
+﻿@{
+    var db = Database.Open("HeartstoneSite");
+    var selectQueryString = "SELECT * FROM Player ORDER BY Name";
+
+                      var selectQueryString4 = "SELECT * FROM Player";
+                      int i = 0;
+
+                      float[,] winsclass = new float[2,11];
+                     String[] names = new string[2];
+                        foreach(var row in db.Query(selectQueryString4))
+                       {
+                           names[i] = row.name;
+                           winsclass[i,1] = row.druid;
+                           winsclass[i,2] = row.mage;
+                           winsclass[i,3] = row.shamen;
+                           winsclass[i,4] = row.warlock;
+                           winsclass[i,5] = row.hunter;
+                           winsclass[i,6] = row.preist;
+                           winsclass[i,7] = row.warrior;
+                           winsclass[i,8] = row.rouge;
+                           winsclass[i,9] = row.wins;
+                           winsclass[i,0] = row.paladin;
+                           i++;
+                       }
+                       i=0;
+
+
+         var selectQueryStringclasswins = "SELECT * FROM class"; 
+          float[,] classinfo = new float[10,11];
+                     String[] classnames = new string[10];
+                     int k = 0;
+                        foreach(var row in db.Query(selectQueryStringclasswins))
+                       {
+                           classnames[k] = row.Class;
+                           //row1                           
+                           classinfo[k,0] = row.paladin;
+                           classinfo[k,1] = row.druid;
+                           classinfo[k,2] = row.mage;
+                           classinfo[k,3] = row.shamen;
+                           classinfo[k,4] = row.warlock;
+                           classinfo[k,5] = row.hunter;
+                           classinfo[k,6] = row.preist;
+                           classinfo[k,7] = row.warrior;
+                           classinfo[k,8] = row.rouge;
+
+                           classinfo[k,9] = row.wins;
+
+
+
+                           k++;
+                       }
+                       k=0;        
+
+}
+@functions{
+
+    public string GetClass(float classnum)
+    {
+        int s =  (int)Math.Ceiling(classnum);
+
+        switch (s) {
+            case 0: return "Images/Paladin.png";
+            break;
+            case 1: return "Images/Druid.png";
+            break;
+            case 2: return "Images/Mage.pnge";
+            break;
+            case 3: return "Images/Shamen.png";
+            break;
+            case 4: return "Images/Warlock.png";
+            break;
+            case 5: return "Images/hunter.png";
+            break;
+            case 6: return "Images/Priest.png";
+            break;
+            case 7: return "Images/warrior.png";
+            break;
+            case 8: return "Images/Rouge.png";
+            break;
+            default: return "Unidentified Class";
+break;
+
+
+            }
+    }
+    public string BestPlayer(float[,] Wins,int Hclass){
+         if(Wins[0,Hclass]>Wins[1,Hclass]){
+                return "Kain";
+            }
+            else
+            {
+               return "Josh"; 
+            }
+
+    }
+    public float BestClass( float[,] Wins,int player ){
+        float max = 0;
+        float Best = 0;
+        for(int i =0;i<=8;i++){
+
+            if(Wins[player,i]>max){
+                max = Wins[player,i];
+                Best = i;
+            }
+        }
+        return Best;
+    }
+     public float WinLoss( float[,] Wins,int player  ){
+         int other = 1;
+         if(player==1)
+         {
+           other=0;
+         }
+        return Wins[player,9]/Wins[other,9];  
+    }
+     public float WinDist( float[,] Wins,int player  ){
+        int other = 1;
+         if(player==1)
+         {
+           other=0;
+         }
+        return Wins[player,9]-Wins[other,9];  
+    }
+    public float Gplayed( float[,] Wins  ){       
+        return Wins[0,9]+Wins[1,9];  
+    }
+
+ public float WorstClass( float[,] Wins,int player  ){
+        float max = 99999;
+        float HClass = 0;
+        for(int i = 0;i<=8;i++){
+
+            if(Wins[player,i]<=max){
+                max = Wins[1,i];
+                HClass = i;
+            }
+        }
+        return HClass;
+    }
+    public float Classwinloss( float[,] Wins,int player  ){
+        float losses = 0;
+        for(int i = 0;i<=8;i++){
+            losses += Wins[i,player];
+        }
+       losses = losses - Wins[player,player];
+
+        float ClassWins = Wins[player,9];
+
+
+        return ClassWins/losses;
+    }
+    public float MostWins( float[,] Wins,int player  ){
+        float Current = 10;
+        int i=0;
+        float HClass = 0;
+        for( i = 0;i<=8;i++){
+            if(Current < Wins[player,i] )
+            {
+                Current = Wins[player,i];
+                HClass = i;
+            }
+        }
+
+
+
+
+
+        return HClass;
+    }
+
+     public float MostLoss( float[,] Wins,int player  ){
+        float Current = 0;
+        int i= 0;
+        float HClass = 0;
+        for( i = 0;i<=8;i++){
+
+            if( Wins[i,player] > Current)
+            {
+
+                Current = Wins[i,player];
+                HClass = i;
+            }
+        }
+
+
+
+
+
+        return HClass;
+    }
+    public float LeastWins( float[,] Wins,int player  ){
+        float Current = 110;
+        int i=0;
+        float HClass = 0;
+        for( i = 0;i<=8;i++){
+            if(Current > Wins[player,i] )
+            {
+
+                Current = Wins[player,i];
+                HClass = i;
+            }
+        }
+
+
+
+
+
+        return HClass;
+    }
+
+
+}
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Bootstrap Example</title>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+        <script src="Script.js"></script>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+        <asp:ScriptManager ID="ScriptManager1" EnablePageMethods="true" EnablePartialRendering="true" runat="server" />
+
+        <style>
+            footer {
+                          background-color: #161616;
+                          color: #f5f5f5;
+                          padding: 32px;
+                          font-size: 18px
+                      }
+            
+                      footer a {
+                          color: #f5f5f5;
+                      }
+            
+                      footer a:hover {
+                          color: #777;
+                          text-decoration: none;
+                      }
+            
+                                   #more{        
+                            width : 100%;
+                          height: 300px;
+                          overflow: hidden;
+                      }
+                        .circle {
+              width: 500px;
+              height: 500px;
+              border-radius: 50%;
+              font-size: 50px;
+              color: #fff;
+              line-height: 500px;
+              text-align: center;
+              background: #000
+            }
+                                                body, html {
+                                                    height: 97.5%;
+                                                     position: relative; 
+                                                  }
+                                                  .affix {
+                                                      top:0;
+                                                      width: 100%;
+                                                      z-index: 999 !important;
+                                                  }
+                                                  .navbar {
+                                                      margin-bottom: 0px;
+                                                  }
+            
+                                                  .affix ~ .container-fluid {
+                                                     position: relative;
+                                                     top: 50px;
+                                                  }
+            
+                                                .parallax {
+                                                    /* The image used */
+                                                    background-image: url('Images/hearth.png');
+            
+                                                    /* Full height */
+                                                    height: 930px; 
+            
+                                                    /* Create the parallax scrolling effect */
+                                                    background-attachment: fixed;
+                                                    background-position: center;
+                                                    background-repeat: no-repeat;
+                                                    background-size: cover;
+                                                }
+                                                .spacer {
+                                        margin-top: 40px; /* define margin as you see fit */
+                                    }
+            
+                                                        #para1 {
+                                                            text-align: center;
+                                                            color: #d7cbcb;
+                                                            padding-top: 2%;
+                                                            font-size: 1500%;
+                                                            outline-style: inset;
+                                                            padding-bottom: 0%;
+                                                            text-shadow:
+                                                -3px -3px 0 #000,
+                                                3px -3px 0 #000,
+                                                -3px 3px 0 #000,
+                                                3px 3px 0 #000;  
+                                                        }
+                                                        #para2 {
+                                                            position:absolute;
+                                                            color: #d7cbcb;
+                                                            padding-top: 0%;
+                                                            padding-left: 25%;
+                                                            font-size: 3000%;
+            
+                                                            text-shadow:
+                                                -3px -3px 0 #000,
+                                                3px -3px 0 #000,
+                                                -3px 3px 0 #000,
+                                                3px 3px 0 #000;  
+                                                        }
+            
+                                                    #para3 {
+                                                            position:absolute;
+                                                            color: #d7cbcb;
+                                                            padding-top: 0%;
+                                                            padding-left: 60%;
+                                                            font-size: 3000%;
+                                                            text-underline-position: below right;
+                                                            text-shadow:
+                                                -3px -3px 0 #000,
+                                                3px -3px 0 #000,
+                                                -3px 3px 0 #000,
+                                                3px 3px 0 #000;  
+                                                            z-index: 1 !important;
+                                                        }
+                                                         #para4 {
+                                                            position:absolute;
+                                                            color: #d7cbcb;
+                                                            padding-top: 0%;
+                                                            padding-left: 45%;
+                                                            font-size: 3000%;
+                                                            text-underline-position: below right;
+                                                            text-shadow:
+                                                -3px -3px 0 #000,
+                                                3px -3px 0 #000,
+                                                -3px 3px 0 #000,
+                                                3px 3px 0 #000;  
+                                                            z-index: 1 !important;
+                                                        }
+                                                .centering{
+                                    float:none;
+                                    margin:0 auto
+                                    }
+                                                .buffer { margin-top:20px; }
+            
+            
+                                    .carousel-control.left, .carousel-control.right {
+                            background-image: none
+                        }
+        </style>
+
+    </head>
+
+
+
+
+    <body data-spy="scroll" data-target=".navbar" data-offset="50">
+
+
+
+        <div class="parallax" style="overflow: hidden">
+
+            <p id="para1">K V J</p>
+            <p id="para1">@winsclass[0,9] - @winsclass[1,9] </p>
+
+        </div>
+
+        <nav class="navbar navbar-inverse" data-spy="affix" data-offset-top="929">
+            <div class="container-fluid">
+                <div class="navbar-header">
+                    <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#myNavbar">
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                    </button>
+                    <a class="navbar-brand" href="#">KainVSJosh</a>
+                </div>
+                <div>
+                    <div class="collapse navbar-collapse" id="myNavbar">
+                        <ul class="nav navbar-nav">
+                            <li><a href="#Classes">Classes</a></li>
+                            <li><a href="#Players">Players</a></li>
+                            <li><a href="#NewMatch">New Match</a></li>
+                        </ul>
+          </li>
+        </ul>
+                    </div>
+                </div>
+            </div>
+        </nav>
+
+
+
+
+        <div id="myCarousel" class="carousel slide" data-ride="carousel">
+            <!-- Indicators -->
+            <ol class="carousel-indicators">
+                <li data-target="#myCarousel" data-slide-to="0" class="active"></li>
+                <li data-target="#myCarousel" data-slide-to="1"></li>
+            </ol>
+
+            <!-- Wrapper for slides -->
+            <div class="carousel-inner">
+                <div class="item active">
+                    <div id="Players" class="jumbotron text-center">
+                        <h1 style="color: #2E53B8 ">@names[0]</h1>
+                        <p>See players stats and try to comprehend how bad josh is</p>
+                    </div>
+
+
+
+                    <div class="container">
+
+                        <div class="row">
+
+                            <div class="col-sm-4">
+                                <h2 style="text-align:center">Best Class</h2>
+                                <div class="col-sm-12 buffer"></div>
+                                <div class="col-sm-12 buffer"></div>
+                                <img src="@GetClass(@BestClass(@winsclass,0))" class="img-responsive centering" alt="Class"> </img>
+                                <div class="col-sm-12 buffer"></div>
+                            </div>
+
+                            <div class="col-sm-4" style="text-align: center">
+                                <h2 style="text-align:center">Win/Loss</h2>
+                                <div class="col-sm-12 buffer"></div>
+                                <div class="col-sm-12 buffer"></div>
+                                <div class="col-sm-12 buffer"></div>
+                                <div class="col-sm-12 buffer"></div>
+                                <h1>  @WinLoss(@winsclass,0)</h1>
+                                <div class="col-sm-12 buffer"></div>
+                                <div class="col-sm-12 buffer"></div>
+
+
+                                <div class="col-sm-12 buffer"></div>
+                            </div>
+
+                            <div class="col-sm-4">
+                                <h2 style="text-align:center">Worst Matchup</h2>
+                                <div class="col-sm-12 buffer"></div>
+                                <div class="col-sm-12 buffer"></div>
+
+                                <img src="@GetClass(@BestClass(@winsclass,1))" class="img-responsive centering" alt="Class"> </h2>
+                                <div class="col-sm-12 buffer"></div>
+                            </div>
+
+
+
+
+                        </div>
+
+                        <div class="col-sm-4">
+                            <h2 style="text-align:center">Win Distribution</h2>
+                            <div class="col-sm-12 buffer"></div>
+                            <div class="col-sm-12 buffer"></div>
+                            <div class="col-sm-12 buffer"></div>
+                            <div class="col-sm-12 buffer"></div>
+                            <h2 id="1234" style="text-align:center">@WinDist(@winsclass,0)</h2>
+                            <div class="col-sm-12 buffer"></div>
+                        </div>
+                        <div class="col-sm-4">
+                            <h2 style="text-align:center">Wosrt Class</h2>
+                            <div class="col-sm-12 buffer"></div>
+                            <div class="col-sm-12 buffer"></div>
+
+                            <img src="@GetClass(@WorstClass(@winsclass,0))" class="img-responsive centering" alt="Class"> </h2>
+                            <div class="col-sm-12 buffer"></div>
+                        </div>
+                        <div class="col-sm-4">
+                            <h2 style="text-align:center">Games PLayed</h2>
+                            <div class="col-sm-12 buffer"></div>
+                            <div class="col-sm-12 buffer"></div>
+                            <div class="col-sm-12 buffer"></div>
+                            <div class="col-sm-12 buffer"></div>
+                            <h2 id="1234" style="text-align:center">@Gplayed(@winsclass)</h2>
+
+                            <div class="col-sm-12 buffer"></div>
+                        </div>
+                        <div class="col-sm-12 buffer"></div>
+                        <div class="col-sm-12 buffer"></div>
+                        <div class="col-sm-12 buffer"></div>
+                        <div class="col-sm-12 buffer"></div>
+                    </div>
+
+
+                </div>
+
+                <div class="item">
+                    <div id="Players" class="jumbotron text-center">
+                        <h1 style="color: #2E53B8 ">@names[1]</h1>
+                        <p>See players stats and try to comprehend how bad josh is</p>
+                    </div>
+
+
+
+                    <div class="container">
+
+                        <div class="row">
+
+                            <div class="col-sm-4">
+                                <h2 style="text-align:center">Best Class</h2>
+                                <div class="col-sm-12 buffer"></div>
+                                <div class="col-sm-12 buffer"></div>
+                                <img src="@GetClass(@BestClass(@winsclass,1))" class="img-responsive centering" alt="Class"> </img>
+                                <div class="col-sm-12 buffer"></div>
+                            </div>
+
+                            <div class="col-sm-4" style="text-align: center">
+                                <h2 style="text-align:center">Win/Loss</h2>
+                                <div class="col-sm-12 buffer"></div>
+                                <div class="col-sm-12 buffer"></div>
+                                <div class="col-sm-12 buffer"></div>
+                                <div class="col-sm-12 buffer"></div>
+                                <h1>  @WinLoss(@winsclass,1)</h1>
+                                <div class="col-sm-12 buffer"></div>
+                                <div class="col-sm-12 buffer"></div>
+
+
+                                <div class="col-sm-12 buffer"></div>
+                            </div>
+
+                            <div class="col-sm-4">
+                                <h2 style="text-align:center">Worst Matchup</h2>
+                                <div class="col-sm-12 buffer"></div>
+                                <div class="col-sm-12 buffer"></div>
+
+                                <img src="@GetClass(@BestClass(@winsclass,0))" class="img-responsive centering" alt="Class"> </h2>
+                                <div class="col-sm-12 buffer"></div>
+                            </div>
+
+
+
+
+                        </div>
+
+                        <div class="col-sm-4">
+                            <h2 style="text-align:center">Win Distribution</h2>
+                            <div class="col-sm-12 buffer"></div>
+                            <div class="col-sm-12 buffer"></div>
+                            <div class="col-sm-12 buffer"></div>
+                            <div class="col-sm-12 buffer"></div>
+                            <h2 id="1234" style="text-align:center">@WinDist(@winsclass,1)</h2>
+                            <div class="col-sm-12 buffer"></div>
+                        </div>
+                        <div class="col-sm-4">
+                            <h2 style="text-align:center">Wosrt Class</h2>
+                            <div class="col-sm-12 buffer"></div>
+                            <div class="col-sm-12 buffer"></div>
+
+                            <img src="@GetClass(@WorstClass(@winsclass,1))" class="img-responsive centering" alt="Class"> </h2>
+                            <div class="col-sm-12 buffer"></div>
+                        </div>
+                        <div class="col-sm-4">
+                            <h2 style="text-align:center">Games PLayed</h2>
+                            <div class="col-sm-12 buffer"></div>
+                            <div class="col-sm-12 buffer"></div>
+                            <div class="col-sm-12 buffer"></div>
+                            <div class="col-sm-12 buffer"></div>
+                            <h2 id="1234" style="text-align:center">@Gplayed(@winsclass)</h2>
+
+                            <div class="col-sm-12 buffer"></div>
+                        </div>
+                        <div class="col-sm-12 buffer"></div>
+                        <div class="col-sm-12 buffer"></div>
+                        <div class="col-sm-12 buffer"></div>
+                        <div class="col-sm-12 buffer"></div>
+                    </div>
+
+
+                </div>
+
+                <!-- Left and right controls -->
+                <a class="left carousel-control" href="#myCarousel" data-slide="prev">
+                    <span class="glyphicon glyphicon-chevron-left"></span>
+                    <span class="sr-only">Previous</span>
+                </a>
+                <a class="right carousel-control" href="#myCarousel" data-slide="next">
+                    <span class="glyphicon glyphicon-chevron-right"></span>
+                    <span class="sr-only">Next</span>
+                </a>
+            </div>
+        </div>
+
+
+
+
+        <div id="myCarousel2" class="carousel slide" data-ride="carousel">
+            <!-- Indicators -->
+            <ol class="carousel-indicators">
+                <li data-target="#myCarousel2" data-slide-to="0" class="active"></li>
+                <li data-target="#myCarousel2" data-slide-to="1"></li>
+            </ol>
+
+            <!-- Wrapper for slides -->
+            <div class="carousel-inner">
+                <div class="item active">
+                    <div id="Classes" class="jumbotron text-center">
+                        <h1 style="color: #2E53B8 ">Paladin</h1>
+                        <p>See players stats and try to comprehend how bad josh is</p>
+                    </div>
+
+                    <div class="container">
+
+                        <div class="row">
+                            <div class="col-sm-4">
+                                <h2 style="text-align:center">Wins</h2>
+                                <div class="col-sm-12 buffer"></div>
+                                <div class="col-sm-12 buffer"></div>
+                                <div class="col-sm-12 buffer"></div>
+                                <div class="col-sm-12 buffer"></div>
+                                <h2 id="1234" style="text-align:center">@classinfo[0,9]</h2>
+                                <div class="col-sm-12 buffer"></div>
+                                <div class="col-sm-12 buffer"></div>
+                                <div class="col-sm-12 buffer"></div>
+                            </div>
+                            <div class="col-sm-4">
+                                <h2 style="text-align:center">Best Player</h2>
+                                <div class="col-sm-12 buffer"></div>
+                                <div class="col-sm-12 buffer"></div>
+                                <div class="col-sm-12 buffer"></div>
+                                <div class="col-sm-12 buffer"></div>
+                                <h2 id="1234" style="text-align:center">@BestPlayer(@winsclass,0)</h2>
+                                <div class="col-sm-12 buffer"></div>
+                                <div class="col-sm-12 buffer"></div>
+                                <div class="col-sm-12 buffer"></div>
+                            </div>
+                            <div class="col-sm-4">
+                                <h2 style="text-align:center">Win/Loss</h2>
+                                <div class="col-sm-12 buffer"></div>
+                                <div class="col-sm-12 buffer"></div>
+
+                                <div class="col-sm-12 buffer"></div>
+                                <div class="col-sm-12 buffer"></div>
+                                <h2 id="1234" style="text-align:center">@Classwinloss(@classinfo,0  )</h2>
+                                <div class="col-sm-12 buffer"></div>
+                                <div class="col-sm-12 buffer"></div>
+                                <div class="col-sm-12 buffer"></div>
+                            </div>
+                            <div class="col-sm-12 buffer"></div>
+
+                            <div class="col-sm-12 buffer"></div>
+                            <div class="col-sm-12 buffer"></div>
+
+                        </div>
+
+
+                        <div class="col-sm-4">
+                            <h2 style="text-align:center">Mostg wins VS</h2>
+                            <div class="col-sm-12 buffer"></div>
+                            <div class="col-sm-12 buffer"></div>
+                            <img src="@GetClass(@MostWins(@classinfo,0 ))" class="img-responsive centering" alt="Class"> </img>
+                            <div class="col-sm-12 buffer"></div>
+                        </div>
+                        <div class="col-sm-4">
+                            <h2 style="text-align:center">Most Losses VS</h2>
+                            <div class="col-sm-12 buffer"></div>
+                            <div class="col-sm-12 buffer"></div>
+                            <img src="@GetClass(@MostLoss(@classinfo,0  ))" class="img-responsive centering" alt="Class"> </img>
+                            <div class="col-sm-12 buffer"></div>
+                        </div>
+                        <div class="col-sm-4">
+                            <h2 style="text-align:center">Least wins VS</h2>
+                            <div class="col-sm-12 buffer"></div>
+                            <div class="col-sm-12 buffer"></div>
+
+                            <img src="@GetClass(@LeastWins(@classinfo,0  ))" class="img-responsive centering" alt="Class"> </img>
+                            <div class="col-sm-12 buffer"></div>
+                        </div>
+                        <div class="col-sm-12 buffer"></div>
+                        <div class="col-sm-12 buffer"></div>
+                        <div class="col-sm-12 buffer"></div>
+                        <div class="col-sm-12 buffer"></div>
+                    </div>
+                </div>
+
+                <div class="item">
+                    <div id="Classes" class="jumbotron text-center">
+                        <h1 style="color: #2E53B8 ">Druid</h1>
+                        <p>See players stats and try to comprehend how bad josh is</p>
+                    </div>
+
+                    <div class="container">
+
+                        <div class="row">
+                            <div class="col-sm-4">
+                                <h2 style="text-align:center">Wins</h2>
+                                <div class="col-sm-12 buffer"></div>
+                                <div class="col-sm-12 buffer"></div>
+                                <div class="col-sm-12 buffer"></div>
+                                <div class="col-sm-12 buffer"></div>
+                                <h2 id="1234" style="text-align:center">@classinfo[1,9]</h2>
+                                <div class="col-sm-12 buffer"></div>
+                                <div class="col-sm-12 buffer"></div>
+                                <div class="col-sm-12 buffer"></div>
+                            </div>
+                            <div class="col-sm-4">
+                                <h2 style="text-align:center">Best Player</h2>
+                                <div class="col-sm-12 buffer"></div>
+                                <div class="col-sm-12 buffer"></div>
+                                <div class="col-sm-12 buffer"></div>
+                                <div class="col-sm-12 buffer"></div>
+                                <h2 id="1234" style="text-align:center">@BestPlayer(@winsclass,1)</h2>
+                                <div class="col-sm-12 buffer"></div>
+                                <div class="col-sm-12 buffer"></div>
+                                <div class="col-sm-12 buffer"></div>
+                            </div>
+                            <div class="col-sm-4">
+                                <h2 style="text-align:center">Win/Loss</h2>
+                                <div class="col-sm-12 buffer"></div>
+                                <div class="col-sm-12 buffer"></div>
+
+                                <div class="col-sm-12 buffer"></div>
+                                <div class="col-sm-12 buffer"></div>
+                                <h2 id="1234" style="text-align:center">@Classwinloss(@classinfo,1  )</h2>
+                                <div class="col-sm-12 buffer"></div>
+                                <div class="col-sm-12 buffer"></div>
+                                <div class="col-sm-12 buffer"></div>
+                            </div>
+                            <div class="col-sm-12 buffer"></div>
+
+                            <div class="col-sm-12 buffer"></div>
+                            <div class="col-sm-12 buffer"></div>
+
+                        </div>
+
+
+                        <div class="col-sm-4">
+                            <h2 style="text-align:center">Mostg wins VS</h2>
+                            <div class="col-sm-12 buffer"></div>
+                            <div class="col-sm-12 buffer"></div>
+                            <img src="@GetClass(@MostWins(@classinfo,1  ))" class="img-responsive centering" alt="Class"> </img>
+                            <div class="col-sm-12 buffer"></div>
+                        </div>
+                        <div class="col-sm-4">
+                            <h2 style="text-align:center">Most Losses VS</h2>
+                            <div class="col-sm-12 buffer"></div>
+                            <div class="col-sm-12 buffer"></div>
+                            <img src="@GetClass(@MostLoss(@classinfo,1  ))" class="img-responsive centering" alt="Class"> </img>
+                            <div class="col-sm-12 buffer"></div>
+                        </div>
+                        <div class="col-sm-4">
+                            <h2 style="text-align:center">Least wins VS</h2>
+                            <div class="col-sm-12 buffer"></div>
+                            <div class="col-sm-12 buffer"></div>
+
+                            <img src="@GetClass(@LeastWins(@classinfo,1  ))" class="img-responsive centering" alt="Class"> </img>
+                            <div class="col-sm-12 buffer"></div>
+                        </div>
+                        <div class="col-sm-12 buffer"></div>
+                        <div class="col-sm-12 buffer"></div>
+                        <div class="col-sm-12 buffer"></div>
+                        <div class="col-sm-12 buffer"></div>
+                    </div>
+                </div>
+
+                <div class="item">
+                    <div id="Classes" class="jumbotron text-center">
+                        <h1 style="color: #2E53B8 ">Mage</h1>
+                        <p>See players stats and try to comprehend how bad josh is</p>
+                    </div>
+
+                    <div class="container">
+
+                        <div class="row">
+                            <div class="col-sm-4">
+                                <h2 style="text-align:center">Wins</h2>
+                                <div class="col-sm-12 buffer"></div>
+                                <div class="col-sm-12 buffer"></div>
+                                <div class="col-sm-12 buffer"></div>
+                                <div class="col-sm-12 buffer"></div>
+                                <h2 id="1234" style="text-align:center">@classinfo[2,9]</h2>
+                                <div class="col-sm-12 buffer"></div>
+                                <div class="col-sm-12 buffer"></div>
+                                <div class="col-sm-12 buffer"></div>
+                            </div>
+                            <div class="col-sm-4">
+                                <h2 style="text-align:center">Best Player</h2>
+                                <div class="col-sm-12 buffer"></div>
+                                <div class="col-sm-12 buffer"></div>
+                                <div class="col-sm-12 buffer"></div>
+                                <div class="col-sm-12 buffer"></div>
+                                <h2 id="1234" style="text-align:center">@BestPlayer(@winsclass,2)</h2>
+                                <div class="col-sm-12 buffer"></div>
+                                <div class="col-sm-12 buffer"></div>
+                                <div class="col-sm-12 buffer"></div>
+                            </div>
+                            <div class="col-sm-4">
+                                <h2 style="text-align:center">Win/Loss</h2>
+                                <div class="col-sm-12 buffer"></div>
+                                <div class="col-sm-12 buffer"></div>
+
+                                <div class="col-sm-12 buffer"></div>
+                                <div class="col-sm-12 buffer"></div>
+                                <h2 id="1234" style="text-align:center">@Classwinloss(@classinfo,2  )</h2>
+                                <div class="col-sm-12 buffer"></div>
+                                <div class="col-sm-12 buffer"></div>
+                                <div class="col-sm-12 buffer"></div>
+                            </div>
+                            <div class="col-sm-12 buffer"></div>
+
+                            <div class="col-sm-12 buffer"></div>
+                            <div class="col-sm-12 buffer"></div>
+
+                        </div>
+
+
+                        <div class="col-sm-4">
+                            <h2 style="text-align:center">Mostg wins VS</h2>
+                            <div class="col-sm-12 buffer"></div>
+                            <div class="col-sm-12 buffer"></div>
+                            <img src="@GetClass(@MostWins(@classinfo,2  ))" class="img-responsive centering" alt="Class"> </img>
+                            <div class="col-sm-12 buffer"></div>
+                        </div>
+                        <div class="col-sm-4">
+                            <h2 style="text-align:center">Most Losses VS</h2>
+                            <div class="col-sm-12 buffer"></div>
+                            <div class="col-sm-12 buffer"></div>
+                            <img src="@GetClass(@MostLoss(@classinfo,2  ))" class="img-responsive centering" alt="Class"> </img>
+                            <div class="col-sm-12 buffer"></div>
+                        </div>
+                        <div class="col-sm-4">
+                            <h2 style="text-align:center">Least wins VS</h2>
+                            <div class="col-sm-12 buffer"></div>
+                            <div class="col-sm-12 buffer"></div>
+
+                            <img src="@GetClass(@LeastWins(@classinfo,2  ))" class="img-responsive centering" alt="Class"> </img>
+                            <div class="col-sm-12 buffer"></div>
+                        </div>
+                        <div class="col-sm-12 buffer"></div>
+                        <div class="col-sm-12 buffer"></div>
+                        <div class="col-sm-12 buffer"></div>
+                        <div class="col-sm-12 buffer"></div>
+                    </div>
+                </div>
+
+                <div class="item">
+                    <div id="Classes" class="jumbotron text-center">
+                        <h1 style="color: #2E53B8 ">Shamen</h1>
+                        <p>See players stats and try to comprehend how bad josh is</p>
+                    </div>
+
+                    <div class="container">
+
+                        <div class="row">
+                            <div class="col-sm-4">
+                                <h2 style="text-align:center">Wins</h2>
+                                <div class="col-sm-12 buffer"></div>
+                                <div class="col-sm-12 buffer"></div>
+                                <div class="col-sm-12 buffer"></div>
+                                <div class="col-sm-12 buffer"></div>
+                                <h2 id="1234" style="text-align:center">@classinfo[3,9]</h2>
+                                <div class="col-sm-12 buffer"></div>
+                                <div class="col-sm-12 buffer"></div>
+                                <div class="col-sm-12 buffer"></div>
+                            </div>
+                            <div class="col-sm-4">
+                                <h2 style="text-align:center">Best Player</h2>
+                                <div class="col-sm-12 buffer"></div>
+                                <div class="col-sm-12 buffer"></div>
+                                <div class="col-sm-12 buffer"></div>
+                                <div class="col-sm-12 buffer"></div>
+                                <h2 id="1234" style="text-align:center">@BestPlayer(@winsclass,3)</h2>
+                                <div class="col-sm-12 buffer"></div>
+                                <div class="col-sm-12 buffer"></div>
+                                <div class="col-sm-12 buffer"></div>
+                            </div>
+                            <div class="col-sm-4">
+                                <h2 style="text-align:center">Win/Loss</h2>
+                                <div class="col-sm-12 buffer"></div>
+                                <div class="col-sm-12 buffer"></div>
+
+                                <div class="col-sm-12 buffer"></div>
+                                <div class="col-sm-12 buffer"></div>
+                                <h2 id="1234" style="text-align:center">@Classwinloss(@classinfo,3  )</h2>
+                                <div class="col-sm-12 buffer"></div>
+                                <div class="col-sm-12 buffer"></div>
+                                <div class="col-sm-12 buffer"></div>
+                            </div>
+                            <div class="col-sm-12 buffer"></div>
+
+                            <div class="col-sm-12 buffer"></div>
+                            <div class="col-sm-12 buffer"></div>
+
+                        </div>
+
+
+                        <div class="col-sm-4">
+                            <h2 style="text-align:center">Mostg wins VS</h2>
+                            <div class="col-sm-12 buffer"></div>
+                            <div class="col-sm-12 buffer"></div>
+                            <img src="@GetClass(@MostWins(@classinfo,3  ))" class="img-responsive centering" alt="Class"> </img>
+                            <div class="col-sm-12 buffer"></div>
+                        </div>
+                        <div class="col-sm-4">
+                            <h2 style="text-align:center">Most Losses VS</h2>
+                            <div class="col-sm-12 buffer"></div>
+                            <div class="col-sm-12 buffer"></div>
+                            <img src="@GetClass(@MostLoss(@classinfo,3  ))" class="img-responsive centering" alt="Class"> </img>
+                            <div class="col-sm-12 buffer"></div>
+                        </div>
+                        <div class="col-sm-4">
+                            <h2 style="text-align:center">Least wins VS</h2>
+                            <div class="col-sm-12 buffer"></div>
+                            <div class="col-sm-12 buffer"></div>
+
+                            <img src="@GetClass(@LeastWins(@classinfo,3  ))" class="img-responsive centering" alt="Class"> </img>
+                            <div class="col-sm-12 buffer"></div>
+                        </div>
+                        <div class="col-sm-12 buffer"></div>
+                        <div class="col-sm-12 buffer"></div>
+                        <div class="col-sm-12 buffer"></div>
+                        <div class="col-sm-12 buffer"></div>
+                    </div>
+                </div>
+
+                <div class="item">
+                    <div id="Classes" class="jumbotron text-center">
+                        <h1 style="color: #2E53B8 ">Warlock</h1>
+                        <p>See players stats and try to comprehend how bad josh is</p>
+                    </div>
+
+                    <div class="container">
+
+                        <div class="row">
+                            <div class="col-sm-4">
+                                <h2 style="text-align:center">Wins</h2>
+                                <div class="col-sm-12 buffer"></div>
+                                <div class="col-sm-12 buffer"></div>
+                                <div class="col-sm-12 buffer"></div>
+                                <div class="col-sm-12 buffer"></div>
+                                <h2 id="1234" style="text-align:center">@classinfo[4,9]</h2>
+                                <div class="col-sm-12 buffer"></div>
+                                <div class="col-sm-12 buffer"></div>
+                                <div class="col-sm-12 buffer"></div>
+                            </div>
+                            <div class="col-sm-4">
+                                <h2 style="text-align:center">Best Player</h2>
+                                <div class="col-sm-12 buffer"></div>
+                                <div class="col-sm-12 buffer"></div>
+                                <div class="col-sm-12 buffer"></div>
+                                <div class="col-sm-12 buffer"></div>
+                                <h2 id="1234" style="text-align:center">@BestPlayer(@winsclass,4)</h2>
+                                <div class="col-sm-12 buffer"></div>
+                                <div class="col-sm-12 buffer"></div>
+                                <div class="col-sm-12 buffer"></div>
+                            </div>
+                            <div class="col-sm-4">
+                                <h2 style="text-align:center">Win/Loss</h2>
+                                <div class="col-sm-12 buffer"></div>
+                                <div class="col-sm-12 buffer"></div>
+
+                                <div class="col-sm-12 buffer"></div>
+                                <div class="col-sm-12 buffer"></div>
+                                <h2 id="1234" style="text-align:center">@Classwinloss(@classinfo,4  )</h2>
+                                <div class="col-sm-12 buffer"></div>
+                                <div class="col-sm-12 buffer"></div>
+                                <div class="col-sm-12 buffer"></div>
+                            </div>
+                            <div class="col-sm-12 buffer"></div>
+
+                            <div class="col-sm-12 buffer"></div>
+                            <div class="col-sm-12 buffer"></div>
+
+                        </div>
+
+
+                        <div class="col-sm-4">
+                            <h2 style="text-align:center">Mostg wins VS</h2>
+                            <div class="col-sm-12 buffer"></div>
+                            <div class="col-sm-12 buffer"></div>
+                            <img src="@GetClass(@MostWins(@classinfo,4  ))" class="img-responsive centering" alt="Class"> </img>
+                            <div class="col-sm-12 buffer"></div>
+                        </div>
+                        <div class="col-sm-4">
+                            <h2 style="text-align:center">Most Losses VS</h2>
+                            <div class="col-sm-12 buffer"></div>
+                            <div class="col-sm-12 buffer"></div>
+                            <img src="@GetClass(@MostLoss(@classinfo,4  ))" class="img-responsive centering" alt="Class"> </img>
+                            <div class="col-sm-12 buffer"></div>
+                        </div>
+                        <div class="col-sm-4">
+                            <h2 style="text-align:center">Least wins VS</h2>
+                            <div class="col-sm-12 buffer"></div>
+                            <div class="col-sm-12 buffer"></div>
+
+                            <img src="@GetClass(@LeastWins(@classinfo,4  ))" class="img-responsive centering" alt="Class"> </img>
+                            <div class="col-sm-12 buffer"></div>
+                        </div>
+                        <div class="col-sm-12 buffer"></div>
+                        <div class="col-sm-12 buffer"></div>
+                        <div class="col-sm-12 buffer"></div>
+                        <div class="col-sm-12 buffer"></div>
+                    </div>
+                </div>
+
+                <div class="item">
+                    <div id="Classes" class="jumbotron text-center">
+                        <h1 style="color: #2E53B8 ">Hunter</h1>
+                        <p>See players stats and try to comprehend how bad josh is</p>
+                    </div>
+
+                    <div class="container">
+
+                        <div class="row">
+                            <div class="col-sm-4">
+                                <h2 style="text-align:center">Wins</h2>
+                                <div class="col-sm-12 buffer"></div>
+                                <div class="col-sm-12 buffer"></div>
+                                <div class="col-sm-12 buffer"></div>
+                                <div class="col-sm-12 buffer"></div>
+                                <h2 id="1234" style="text-align:center">@classinfo[5,9]</h2>
+                                <div class="col-sm-12 buffer"></div>
+                                <div class="col-sm-12 buffer"></div>
+                                <div class="col-sm-12 buffer"></div>
+                            </div>
+                            <div class="col-sm-4">
+                                <h2 style="text-align:center">Best Player</h2>
+                                <div class="col-sm-12 buffer"></div>
+                                <div class="col-sm-12 buffer"></div>
+                                <div class="col-sm-12 buffer"></div>
+                                <div class="col-sm-12 buffer"></div>
+                                <h2 id="1234" style="text-align:center">@BestPlayer(@winsclass,5)</h2>
+                                <div class="col-sm-12 buffer"></div>
+                                <div class="col-sm-12 buffer"></div>
+                                <div class="col-sm-12 buffer"></div>
+                            </div>
+                            <div class="col-sm-4">
+                                <h2 style="text-align:center">Win/Loss</h2>
+                                <div class="col-sm-12 buffer"></div>
+                                <div class="col-sm-12 buffer"></div>
+
+                                <div class="col-sm-12 buffer"></div>
+                                <div class="col-sm-12 buffer"></div>
+                                <h2 id="1234" style="text-align:center">@Classwinloss(@classinfo,5  )</h2>
+                                <div class="col-sm-12 buffer"></div>
+                                <div class="col-sm-12 buffer"></div>
+                                <div class="col-sm-12 buffer"></div>
+                            </div>
+                            <div class="col-sm-12 buffer"></div>
+
+                            <div class="col-sm-12 buffer"></div>
+                            <div class="col-sm-12 buffer"></div>
+
+                        </div>
+
+
+                        <div class="col-sm-4">
+                            <h2 style="text-align:center">Mostg wins VS</h2>
+                            <div class="col-sm-12 buffer"></div>
+                            <div class="col-sm-12 buffer"></div>
+                            <img src="@GetClass(@MostWins(@classinfo,5  ))" class="img-responsive centering" alt="Class"> </img>
+                            <div class="col-sm-12 buffer"></div>
+                        </div>
+                        <div class="col-sm-4">
+                            <h2 style="text-align:center">Most Losses VS</h2>
+                            <div class="col-sm-12 buffer"></div>
+                            <div class="col-sm-12 buffer"></div>
+                            <img src="@GetClass(@MostLoss(@classinfo,5  ))" class="img-responsive centering" alt="Class"> </img>
+                            <div class="col-sm-12 buffer"></div>
+                        </div>
+                        <div class="col-sm-4">
+                            <h2 style="text-align:center">Least wins VS</h2>
+                            <div class="col-sm-12 buffer"></div>
+                            <div class="col-sm-12 buffer"></div>
+
+                            <img src="@GetClass(@LeastWins(@classinfo,5  ))" class="img-responsive centering" alt="Class"> </img>
+                            <div class="col-sm-12 buffer"></div>
+                        </div>
+                        <div class="col-sm-12 buffer"></div>
+                        <div class="col-sm-12 buffer"></div>
+                        <div class="col-sm-12 buffer"></div>
+                        <div class="col-sm-12 buffer"></div>
+                    </div>
+                </div>
+
+                <div class="item">
+                    <div id="Classes" class="jumbotron text-center">
+                        <h1 style="color: #2E53B8 ">Priest</h1>
+                        <p>See players stats and try to comprehend how bad josh is</p>
+                    </div>
+
+                    <div class="container">
+
+                        <div class="row">
+                            <div class="col-sm-4">
+                                <h2 style="text-align:center">Wins</h2>
+                                <div class="col-sm-12 buffer"></div>
+                                <div class="col-sm-12 buffer"></div>
+                                <div class="col-sm-12 buffer"></div>
+                                <div class="col-sm-12 buffer"></div>
+                                <h2 id="1234" style="text-align:center">@classinfo[6,9]</h2>
+                                <div class="col-sm-12 buffer"></div>
+                                <div class="col-sm-12 buffer"></div>
+                                <div class="col-sm-12 buffer"></div>
+                            </div>
+                            <div class="col-sm-4">
+                                <h2 style="text-align:center">Best Player</h2>
+                                <div class="col-sm-12 buffer"></div>
+                                <div class="col-sm-12 buffer"></div>
+                                <div class="col-sm-12 buffer"></div>
+                                <div class="col-sm-12 buffer"></div>
+                                <h2 id="1234" style="text-align:center">@BestPlayer(@winsclass,6)</h2>
+                                <div class="col-sm-12 buffer"></div>
+                                <div class="col-sm-12 buffer"></div>
+                                <div class="col-sm-12 buffer"></div>
+                            </div>
+                            <div class="col-sm-4">
+                                <h2 style="text-align:center">Win/Loss</h2>
+                                <div class="col-sm-12 buffer"></div>
+                                <div class="col-sm-12 buffer"></div>
+
+                                <div class="col-sm-12 buffer"></div>
+                                <div class="col-sm-12 buffer"></div>
+                                <h2 id="1234" style="text-align:center">@Classwinloss(@classinfo,6  )</h2>
+                                <div class="col-sm-12 buffer"></div>
+                                <div class="col-sm-12 buffer"></div>
+                                <div class="col-sm-12 buffer"></div>
+                            </div>
+                            <div class="col-sm-12 buffer"></div>
+
+                            <div class="col-sm-12 buffer"></div>
+                            <div class="col-sm-12 buffer"></div>
+
+                        </div>
+
+
+                        <div class="col-sm-4">
+                            <h2 style="text-align:center">Mostg wins VS</h2>
+                            <div class="col-sm-12 buffer"></div>
+                            <div class="col-sm-12 buffer"></div>
+                            <img src="@GetClass(@MostWins(@classinfo,6  ))" class="img-responsive centering" alt="Class"> </img>
+                            <div class="col-sm-12 buffer"></div>
+                        </div>
+                        <div class="col-sm-4">
+                            <h2 style="text-align:center">Most Losses VS</h2>
+                            <div class="col-sm-12 buffer"></div>
+                            <div class="col-sm-12 buffer"></div>
+                            <img src="@GetClass(@MostLoss(@classinfo,6 ))" class="img-responsive centering" alt="Class"> </img>
+                            <div class="col-sm-12 buffer"></div>
+                        </div>
+                        <div class="col-sm-4">
+                            <h2 style="text-align:center">Least wins VS</h2>
+                            <div class="col-sm-12 buffer"></div>
+                            <div class="col-sm-12 buffer"></div>
+
+                            <img src="@GetClass(@LeastWins(@classinfo,6  ))" class="img-responsive centering" alt="Class"> </img>
+                            <div class="col-sm-12 buffer"></div>
+                        </div>
+                        <div class="col-sm-12 buffer"></div>
+                        <div class="col-sm-12 buffer"></div>
+                        <div class="col-sm-12 buffer"></div>
+                        <div class="col-sm-12 buffer"></div>
+                    </div>
+                </div>
+
+                <div class="item">
+                    <div id="Classes" class="jumbotron text-center">
+                        <h1 style="color: #2E53B8 ">Warrior</h1>
+                        <p>See players stats and try to comprehend how bad josh is</p>
+                    </div>
+
+                    <div class="container">
+
+                        <div class="row">
+                            <div class="col-sm-4">
+                                <h2 style="text-align:center">Wins</h2>
+                                <div class="col-sm-12 buffer"></div>
+                                <div class="col-sm-12 buffer"></div>
+                                <div class="col-sm-12 buffer"></div>
+                                <div class="col-sm-12 buffer"></div>
+                                <h2 id="1234" style="text-align:center">@classinfo[7,9]</h2>
+                                <div class="col-sm-12 buffer"></div>
+                                <div class="col-sm-12 buffer"></div>
+                                <div class="col-sm-12 buffer"></div>
+                            </div>
+                            <div class="col-sm-4">
+                                <h2 style="text-align:center">Best Player</h2>
+                                <div class="col-sm-12 buffer"></div>
+                                <div class="col-sm-12 buffer"></div>
+                                <div class="col-sm-12 buffer"></div>
+                                <div class="col-sm-12 buffer"></div>
+                                <h2 id="1234" style="text-align:center">@BestPlayer(@winsclass,7)</h2>
+                                <div class="col-sm-12 buffer"></div>
+                                <div class="col-sm-12 buffer"></div>
+                                <div class="col-sm-12 buffer"></div>
+                            </div>
+                            <div class="col-sm-4">
+                                <h2 style="text-align:center">Win/Loss</h2>
+                                <div class="col-sm-12 buffer"></div>
+                                <div class="col-sm-12 buffer"></div>
+
+                                <div class="col-sm-12 buffer"></div>
+                                <div class="col-sm-12 buffer"></div>
+                                <h2 id="1234" style="text-align:center">@Classwinloss(@classinfo,7  )</h2>
+                                <div class="col-sm-12 buffer"></div>
+                                <div class="col-sm-12 buffer"></div>
+                                <div class="col-sm-12 buffer"></div>
+                            </div>
+                            <div class="col-sm-12 buffer"></div>
+
+                            <div class="col-sm-12 buffer"></div>
+                            <div class="col-sm-12 buffer"></div>
+
+                        </div>
+
+
+                        <div class="col-sm-4">
+                            <h2 style="text-align:center">Mostg wins VS</h2>
+                            <div class="col-sm-12 buffer"></div>
+                            <div class="col-sm-12 buffer"></div>
+                            <img src="@GetClass(@MostWins(@classinfo,7 ))" class="img-responsive centering" alt="Class"> </img>
+                            <div class="col-sm-12 buffer"></div>
+                        </div>
+                        <div class="col-sm-4">
+                            <h2 style="text-align:center">Most Losses VS</h2>
+                            <div class="col-sm-12 buffer"></div>
+                            <div class="col-sm-12 buffer"></div>
+                            <img src="@GetClass(@MostLoss(@classinfo,7 ))" class="img-responsive centering" alt="Class"> </img>
+                            <div class="col-sm-12 buffer"></div>
+                        </div>
+                        <div class="col-sm-4">
+                            <h2 style="text-align:center">Least wins VS</h2>
+                            <div class="col-sm-12 buffer"></div>
+                            <div class="col-sm-12 buffer"></div>
+
+                            <img src="@GetClass(@LeastWins(@classinfo,7  ))" class="img-responsive centering" alt="Class"> </img>
+                            <div class="col-sm-12 buffer"></div>
+                        </div>
+                        <div class="col-sm-12 buffer"></div>
+                        <div class="col-sm-12 buffer"></div>
+                        <div class="col-sm-12 buffer"></div>
+                        <div class="col-sm-12 buffer"></div>
+                    </div>
+                </div>
+
+                <div class="item">
+                    <div id="Classes" class="jumbotron text-center">
+                        <h1 style="color: #2E53B8 ">Rouge</h1>
+                        <p>See players stats and try to comprehend how bad josh is</p>
+                    </div>
+
+                    <div class="container">
+
+                        <div class="row">
+                            <div class="col-sm-4">
+                                <h2 style="text-align:center">Wins</h2>
+                                <div class="col-sm-12 buffer"></div>
+                                <div class="col-sm-12 buffer"></div>
+                                <div class="col-sm-12 buffer"></div>
+                                <div class="col-sm-12 buffer"></div>
+                                <h2 id="1234" style="text-align:center">@classinfo[8,9]</h2>
+                                <div class="col-sm-12 buffer"></div>
+                                <div class="col-sm-12 buffer"></div>
+                                <div class="col-sm-12 buffer"></div>
+                            </div>
+                            <div class="col-sm-4">
+                                <h2 style="text-align:center">Best Player</h2>
+                                <div class="col-sm-12 buffer"></div>
+                                <div class="col-sm-12 buffer"></div>
+                                <div class="col-sm-12 buffer"></div>
+                                <div class="col-sm-12 buffer"></div>
+                                <h2 id="1234" style="text-align:center">@BestPlayer(@winsclass,8)</h2>
+                                <div class="col-sm-12 buffer"></div>
+                                <div class="col-sm-12 buffer"></div>
+                                <div class="col-sm-12 buffer"></div>
+                            </div>
+                            <div class="col-sm-4">
+                                <h2 style="text-align:center">Win/Loss</h2>
+                                <div class="col-sm-12 buffer"></div>
+                                <div class="col-sm-12 buffer"></div>
+
+                                <div class="col-sm-12 buffer"></div>
+                                <div class="col-sm-12 buffer"></div>
+                                <h2 id="1234" style="text-align:center">@Classwinloss(@classinfo,8  )</h2>
+                                <div class="col-sm-12 buffer"></div>
+                                <div class="col-sm-12 buffer"></div>
+                                <div class="col-sm-12 buffer"></div>
+                            </div>
+                            <div class="col-sm-12 buffer"></div>
+
+                            <div class="col-sm-12 buffer"></div>
+                            <div class="col-sm-12 buffer"></div>
+
+                        </div>
+
+
+                        <div class="col-sm-4">
+                            <h2 style="text-align:center">Mostg wins VS</h2>
+                            <div class="col-sm-12 buffer"></div>
+                            <div class="col-sm-12 buffer"></div>
+                            <img src="@GetClass(@MostWins(@classinfo,8  ))" class="img-responsive centering" alt="Class"> </img>
+                            <div class="col-sm-12 buffer"></div>
+                        </div>
+                        <div class="col-sm-4">
+                            <h2 style="text-align:center">Most Losses VS</h2>
+                            <div class="col-sm-12 buffer"></div>
+                            <div class="col-sm-12 buffer"></div>
+                            <img src="@GetClass(@MostLoss(@classinfo,8 ))" class="img-responsive centering" alt="Class"> </img>
+                            <div class="col-sm-12 buffer"></div>
+                        </div>
+                        <div class="col-sm-4">
+                            <h2 style="text-align:center">Least wins VS</h2>
+                            <div class="col-sm-12 buffer"></div>
+                            <div class="col-sm-12 buffer"></div>
+
+                            <img src="@GetClass(@LeastWins(@classinfo,8 ))" class="img-responsive centering" alt="Class"> </img>
+                            <div class="col-sm-12 buffer"></div>
+                        </div>
+                        <div class="col-sm-12 buffer"></div>
+
+
+                    </div>
+                </div>
+
+                <!-- Left and right controls -->
+                <a class="left carousel-control" href="#myCarousel2" data-slide="prev">
+                    <span class="glyphicon glyphicon-chevron-left"></span>
+                    <span class="sr-only">Previous</span>
+                </a>
+                <a class="right carousel-control" href="#myCarousel2" data-slide="next">
+                    <span class="glyphicon glyphicon-chevron-right"></span>
+                    <span class="sr-only">Next</span>
+                </a>
+            </div>
+
+
+
+
+
+
+        </div>
+
+        <footer id="NewMatch" class="text-center" style="font-family: 'Kaushan Script;'">
+            <a class="up-arrow" href="#" title="TO TOP">
+                <span class="glyphicon glyphicon-chevron-up"></span>
+            </a><br><br>
+            <div class="container">
+                <div class="row">
+                    <div class="col-sm-4">
+                        <select id="Kain">
+                            <option value="volvo">Volvo</option>
+                            <option value="saab">Saab</option>
+                            <option value="mercedes">Mercedes</option>
+                            <option value="audi">Audi</option>
+                        </select>
+                    </div>
+                    <div class="col-sm-4"></div>
+                    <div class="col-sm-4">
+                        <select id="Josh">
+                            <option value="volvo">Volvo</option>
+                            <option value="saab">Saab</option>
+                            <option value="mercedes">Mercedes</option>
+                            <option value="audi">Audi</option>
+                        </select>
+                    </div>
+                    <div class="col-sm-12">
+                        <select id="Winner">
+                            <option value="Kain">Kain</option>
+                            <option value="Josh">Josh</option>
+                            
+                        </select>
+                    </div>
+                    <div class="col-sm-12">
+                        <button onclick="myFunction()">Click me</button>
+                    </div>
+                    <div class="col-sm-12">
+                        <p>Contact us and we'll get back to you soon.</p>
+                        <p><span class="glyphicon glyphicon-map-marker"></span> Derby, Uk</p>
+                        <p><span class="glyphicon glyphicon-phone"></span> +44 07917770752</p>
+                        <p><span class="glyphicon glyphicon-envelope"></span> twistedtalesfilms@gmail.com </p>
+
+                    </div>
+
+                </div>
+            </div>
+
+
+        </footer>
+    </body>
+</html>
+
+<script type="text/javascript">
+    $("button").click(function(){
+        
+        $.post("Cnt.asp",
+        {
+            JoshClass: document.getElementById('Josh').value,
+            KainClass: document.getElementById('Kain').value,
+            Winner: document.getElementById('Winner').value,
+        },
+    
+        function(data, status){
+    
+            alert("Data: " + data + "\nStatus: " + status);
+        });
+    
+    });
+</script>
